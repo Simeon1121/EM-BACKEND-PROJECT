@@ -12,12 +12,10 @@ const createPost = async (req, res) => {
   req.body.user = req.user.userId;
 
   if (!text && !image) {
-    res
-      .status(400)
-      .json({
-        success: false,
-        message: "You must provide either text or image",
-      });
+    res.status(400).json({
+      success: false,
+      message: "You must provide either text or image",
+    });
     return;
   }
   try {
@@ -64,14 +62,20 @@ const getTimeline = async (req, res) => {
       .populate("user", "userName")
       .populate("comments.user", "userName")
       .sort({ createdAt: -1 });
-        // add comment count to each post
-        // 04/06/2024
-        const postWithCommentCount = posts.map(post =>({
-            ...post.toObject(),
-            commentsCount: post.comments.length
-        }));
+    // add comment count to each post
+    // 04/06/2024
+    const postWithCommentCount = posts.map((post) => ({
+      ...post.toObject(),
+      commentsCount: post.comments.length,
+    }));
 
-    res.status(200).json({ success: true, message: "timeline post", posts:postWithCommentCount });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "timeline post",
+        posts: postWithCommentCount,
+      });
   } catch (error) {
     res.status(500).json(error.message);
   }
@@ -140,7 +144,7 @@ const getComments = async (req, res) => {
   try {
     const post = await POST.findById(req.params.postId).populate(
       "comments.user",
-      "userName"
+      "userName profilePhoto"
     );
     if (!post) {
       return res
